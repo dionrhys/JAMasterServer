@@ -1,2 +1,8 @@
 ^bin$
 ^obj$
+
+# Ignore VS per-user stuff
+\.suo$
+\.sdf$
+\.opensdf$
+ipch$
