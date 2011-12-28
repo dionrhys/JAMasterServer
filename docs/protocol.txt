@@ -1,0 +1,90 @@
+                    ----------------------------------------
+                    |            JAMasterServer            |
+                    |    Network Protocol Specification    |
+                    ----------------------------------------
+
+Author: Dion Williams
+Revision: 1
+Last Revised: 13 November 2011
+
+--[ Preliminary Notes ]--
+  * All master server communication will be as Q3 UDP OOB packets which
+    have 4 prefixed 0xFF bytes.
+
+----------------------------------------------------------------------
+Client Communication - Getting the server list
+----------------------------------------------------------------------
+Incoming:
+  * "getservers <protocol number>"
+
+  Example: "getservers 26" (for Jedi Academy)
+
+Outgoing:
+  * Command begins with: "getserversResponse\n\0"
+  * Then zero or more occurences of <server-tag> (see beneath)
+  * Command ends with: 
+    - "\\EOT" if not last packet
+    OR
+    - "\\EOF" if last packet
+  * <server-tag> is defined as "\\" then the 4 bytes of the IPv4 address
+    (network order) and the 2 bytes of the port (network order)
+  * Multiple packets used for lots of results.
+    (masterjk3 seems to cap at 805 bytes for the entire data in packet. That
+    leaves 777 bytes for server entries, so exactly 111 servers per packet)
+    [Number of servers/bytes in getserversResponse packets in JAMS undecided]
+
+  Example: "getserversResponse\n\0\\1234AB\\5678XY\\EOT"
+  (The last fragmented getserversResponse packet appends EOF not EOT!)
+
+----------------------------------------------------------------------
+Server Communication - Registering on the server list (heartbeats)
+----------------------------------------------------------------------
+Incoming:
+  * "heartbeat <heartbeat-protocol>\n"
+  * The only protocol to be supported in JAMS is QuakeArena-1
+
+  Example: "heartbeat QuakeArena-1\n"
+
+Outgoing:
+  * "getstatus <challenge>"
+  * <challenge> should be random (although masterjk3 gives a unix timestamp)
+
+  Example: "getstatus 3838062790"
+
+Incoming:
+  * Command begins with: "statusResponse\n"
+  * The server info follows after as a Q3 "Info String" key/pair sequence
+    ( "\\" + keyname + "\\" + value ... )
+  * After the serverinfo: "\n"
+  * Information about connected players follows next in this form:
+    "score0 ping0 \"name0\"\n" + "score1 ping1 \"name1\"\n" + ...
+  * Note therefore there will always be a \n at the end of the string
+  * The server must have a "challenge" serverinfo key with the correct
+    challenge from the previous step set as its value!!
+
+  Example:
+  "statusResponse\n\\challenge\\3838062790\\fs_game\\japlus\n4 97 \"Didz\"\n"
+
+----------------------------------------------------------------------
+RCON (Remote Control) - Administrating the master server remotely
+----------------------------------------------------------------------
+Incoming:
+  * Command begins with: "rcon "
+  * The rcon password is then appended
+  * After the rcon password: " "
+  * The command string to process then follows
+  * The Rcon command handler decides what to do with the input string
+  * Extra: The JKA/Q3 client doesn't wrap the rcon password in quotes
+           so having spaces in rcon passwords isn't possible in Q3.
+           (But we allow spaces if a client which supports it is used)
+
+  Example: "rcon TinkyWinkyRulez123 kick all"
+
+Outgoing:
+  * Feedback to the user is given as an OOB print command in the form:
+    "print \"<message>\n\""
+  * There might not be any output. (Always good to have feedback though!)
+
+  Example: "print \"All servers have been kicked from the list!\n\""
+
+Copyright (c) 2011, Dion Williams
