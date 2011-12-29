@@ -171,7 +171,11 @@ void NET_Init(const char *hostname, short port)
 		Error("NET_Init: Failed to bind the socket: %s\n", NET_ErrorString());
 	}
 
-	printf("Net socket bound successfully\n");
+	NetAdr myAdr;
+	char addrstr[INET6_ADDRSTRLEN];
+	NET_SockaddrToNetadr((struct sockaddr*)&ipv4_local, &myAdr);
+	myAdr.ToString(addrstr, sizeof(addrstr));
+	printf("Net socket bound successfully to %s:%i\n", addrstr, port);
 }
 
 // Shutdown the networking stuff
@@ -313,6 +317,6 @@ void NET_HandlePacket(NetAdr *from, Q3OobMsg *msg)
 #ifdef _WIN32
 		Beep( 1500, 200 );
 #endif
-		//JAMS_GetServers(cmd, from, msg);
+		JAMS_GetServers(cmd, from, msg);
 	}
 }

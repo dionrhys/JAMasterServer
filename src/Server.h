@@ -13,7 +13,8 @@
 // Server entries
 typedef struct
 {
-	NetAdr	*adr;
+	bool	inuse;
+	NetAdr	adr;
 	time_t	expireTime; // Timestamp of expiry
 	int		challenge; // Challenge key: master --> server --> master
 	//char	heartbeatIdent[64]; // Should be QuakeArena-1 for JKA
@@ -22,8 +23,8 @@ typedef struct
 
 typedef struct
 {
-	bool		inUse;
-	NetAdr		*adr;
+	bool		inuse;
+	NetAdr		adr;
 	time_t		expireTime; // Timestamp of expiry
 	int			challenge; // Challenge key: master --> server --> master
 } SVChallenge;
@@ -36,7 +37,7 @@ typedef struct
  * challenge matches, the server is now registered on the master server.
  */
 
-SVChallenge *SV_GetChallengeByNetadr(NetAdr *adr);
-SVEntry *SV_GetServerEntryByNetadr(NetAdr *adr);
+SVChallenge *SV_GetChallengeByNetAdr(NetAdr *adr, bool createIfNoMatch);
+SVEntry *SV_GetServerEntryByNetAdr(NetAdr *adr, bool createIfNoMatch);
 
 #endif

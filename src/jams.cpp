@@ -17,6 +17,7 @@
 
 jamsLocal_t jams;
 
+void JAMS_InitServers(void); //hackhackhack
 int JAMS_Main(void)
 {
 	Print("Starting up...\n");
@@ -24,6 +25,8 @@ int JAMS_Main(void)
 	// Load configuration
 	int err = JAMS_LoadConfig();
 	if (err) return err;
+
+	JAMS_InitServers();
 
 	// Startup network interface
 	NET_Init(jams.hostname, jams.port);
@@ -60,10 +63,11 @@ int JAMS_LoadConfig(void)
 
 	if (!f)
 	{
-		PrintWarning("Config file %s not found, using default settings\n", jams.configFilename);
+		PrintWarning("Unable to open config file %s, using default settings\n", jams.configFilename);
 		jams.port = JAMS_DEFAULT_PORT;
 		jams.svTimeout = JAMS_DEFAULT_SVTIMEOUT;
 		jams.floodDelay = JAMS_DEFAULT_FLOODDELAY;
+		jams.challengeTimeout = JAMS_DEFAULT_CHALLENGETIMEOUT;
 		// Leave hostname and rconPassword empty
 	}
 	else
@@ -92,6 +96,7 @@ int JAMS_LoadConfig(void)
 
 		jams.svTimeout = cJSON_ToIntegerOpt(cJSON_GetObjectItem(root, "svTimeout"), JAMS_DEFAULT_SVTIMEOUT);
 		jams.floodDelay = cJSON_ToIntegerOpt(cJSON_GetObjectItem(root, "floodDelay"), JAMS_DEFAULT_FLOODDELAY);
+		jams.challengeTimeout = cJSON_ToIntegerOpt(cJSON_GetObjectItem(root, "challengeTimeout"), JAMS_DEFAULT_CHALLENGETIMEOUT);
 
 		cJSON_Delete(root);
 	}
@@ -103,6 +108,7 @@ int JAMS_LoadConfig(void)
 	printf("  port = %i\n", jams.port);
 	printf("  rconPassword = %s\n", jams.rconPassword);
 	printf("  svTimeout = %i\n", jams.svTimeout);
+	printf("  challengeTimeout = %i\n", jams.challengeTimeout);
 
 	return 0;
 }
@@ -124,6 +130,12 @@ void JAMS_InitServers(void)
 {
 	memset(jams.servers, 0, sizeof(jams.servers));
 	memset(jams.challenges, 0, sizeof(jams.challenges));
+
+	// Fake test server entry
+	jams.servers[0].inuse = true;
+	jams.servers[0].adr = NetAdr(0xD1EF7BBA, 29070);
+	jams.servers[0].protocol = 26;
+	jams.servers[0].expireTime = 0xFFFFFFFF;
 }
 
 // Every time a heartbeat is given, the server is put on the challenge list

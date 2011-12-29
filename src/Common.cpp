@@ -7,6 +7,13 @@ void Strncpyz( char *dest, const char *src, int destsize )
 	dest[destsize-1] = '\0';
 }
 
+void Strcat( char *dest, const char *src, int destsize )
+{
+	int prevLength = strlen(dest);
+
+	Strncpyz(dest + prevLength, src, destsize - prevLength);
+}
+
 int Strcmp(const char *s1, const char *s2)
 {
 	return strcmp(s1, s2);

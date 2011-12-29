@@ -37,7 +37,7 @@ void Sys_Printf( printLevel_t level, const char *message )
 		case PRINT_ERROR:
 			printf(CONCOLOR_ERROR);
 			printf("ERROR: %s", message);
-			//fprintf(stderr, "[ERROR] %s", message);
+			//fprintf(stderr, "ERROR: %s", message);
 			printf(CONCOLOR_DEFAULT);
 			break;
 		case PRINT_WARNING:
@@ -63,6 +63,9 @@ void Sys_Printf( printLevel_t level, const char *message )
 
 int Sys_Init()
 {
+	// Install the signal handler
+
+
 	return 0;
 }
 

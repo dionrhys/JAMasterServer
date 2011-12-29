@@ -11,6 +11,15 @@
  * - Windows version is made for MSVC, Linux build is made for gcc
  *   (I personally can't help you if you use other tools)
  * - Both 32-bit and 64-bit architectures are supported
+ * - TODO: Support daemonising on all platforms
+ * - TODO: Support logging (console, file, syslog, etc.)
+ *
+ * Signals (based on Polipo's handling)
+ * SIGHUP		Shutdown gracefully
+ * SIGTERM		Shutdown gracefully
+ * SIGINT		Shutdown gracefully
+ * SIGUSR1		Write memory to disk (don't discard), reopen log file, reload configuration
+ * SIGUSR2		Write memory to disk (discard from memory), reopen log file, reload configuration
  */
 
 #define JAMS_NAME "JAMasterServer"
@@ -101,6 +110,7 @@ int JAMS_Main(void);
 int JAMS_LoadConfig(void);
 
 void Strncpyz( char *dest, const char *src, int destsize ); // strncpy with guaranteed trailing zero
+void Strcat( char *dest, const char *src, int destsize );
 int Strcmp(const char *s1, const char *s2);
 int Strncmp(const char *s1, const char *s2, size_t count);
 int Stricmp(const char *s1, const char *s2);
@@ -117,6 +127,7 @@ int Strnicmp(const char *s1, const char *s2, size_t count);
 //#define JAMS_DEFAULT_FLOODDELAY (JAMS_DEFAULT_SVTIMEOUT-30)
 #define JAMS_DEFAULT_FLOODDELAY 60	// More lenient, allows people who are testing server setups
 									// to close/start servers and see changes promptly
+#define JAMS_DEFAULT_CHALLENGETIMEOUT 10
 
 #include "Server.h"
 typedef struct {
@@ -152,6 +163,8 @@ typedef struct {
 	/**************************************************/
 
 	SVEntry servers[16834]; // fixed-size array used for testing! Implement properly later.
+
+	int nextChallenge;
 	SVChallenge challenges[1024];
 } jamsLocal_t;
 

@@ -85,9 +85,9 @@ BOOL CtrlHandler( DWORD fdwCtrlType )
 	}
 }
 
-int Sys_Init(void)
+int Sys_Init()
 {
-	// Set hooks to handle shutdown procedure!
+	// Set hooks to handle shutdown procedure
 	SetConsoleCtrlHandler( (PHANDLER_ROUTINE)CtrlHandler, TRUE );
 
 	return 0;

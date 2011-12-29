@@ -9,11 +9,6 @@
 // Handle incoming heartbeat command
 void JAMS_Heartbeat(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 {
-	char addrstr[65];
-
-	from->ToString(addrstr, sizeof(addrstr));
-	printf("heartbeat from %s:%i : %s\n", addrstr, from->GetPort(), cmd->Cmd());
-
 	if (cmd->Argc() != 2) {
 		return;
 	}
@@ -23,64 +18,44 @@ void JAMS_Heartbeat(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 		return;
 	}
 
-	/*int i;
-	const int maxChallenges = sizeof(jams.challenges)/sizeof(jams.challenges[0]);
-	SVChallenge *challenge = &jams.challenges[0];
-	for (i=0; i < maxChallenges; i++, challenge++)
-	{
-		// First we try to find a challenge from this IP/port that already exists
-		if ( NET_CompareNetadr(*from, challenge->adr) )
-		{
-			break;
-		}
-	}
-
-	// if 'i' is maxChallenges, no matching challenge was found so make a new one
-	if (i == maxChallenges)
-	{
-		for (i=0, challenge = &jams.challenges[0]; i < maxChallenges; i++, challenge++)
-		{
-			// Now we have to find a challenge slot that isn't already taken
-			if ( challenge->inUse == false )
-			{
-				break;
-			}
-		}
-
-		// and check once more if 'i' is maxChallenges, which means challenges are full (replace this with cyclic buffer later!!!)
-		if (i == maxChallenges)
-		{
-			PrintWarning("JAMS_Heartbeat: No challenge slots!\n");
-			return;
-		}
-	}*/
-
-	SVChallenge *challenge = SV_GetChallengeByNetadr(from);
-
-	Print("Using challenge slot [%i]\n", challenge-jams.challenges);
+	SVChallenge *challenge = SV_GetChallengeByNetAdr(from, true);
+	Print("JAMS_Heartbeat: Using challenge slot [%i]\n", challenge-jams.challenges);
 
 	// If we reach here, it means we found a matching challenge, or made a new one!
-	challenge->inUse = true;
+	challenge->inuse = true;
 	challenge->expireTime = time(NULL) + jams.challengeTimeout;
 	challenge->challenge = rand();
-	challenge->adr = from;
+	challenge->adr = *from;
 	NET_SendOobMsgf(from, "getstatus %i", challenge->challenge);
 }
 
 void JAMS_StatusResponse(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 {
-	char addrstr[65];
-	char *s = msg->ReadStringLine();
-
-	from->ToString(addrstr, sizeof(addrstr));
-	printf("statusResponse from %s:%i :\n", addrstr, from->GetPort());
+	/*char *s = msg->ReadStringLine();
 	
 	while (*s)
 	{
 		printf("%s\n", s);
 		s = msg->ReadStringLine();
+	}*/
+
+	SVChallenge *challenge = SV_GetChallengeByNetAdr(from, false);
+	if (challenge)
+	{
+		Print("JAMS_StatusResponse: Using challenge slot [%i]\n", challenge-jams.challenges);
+		if (challenge->challenge == 0xDEADBEEF || true)
+		{
+			Print("JAMS_StatusResponse: Challenge match\n");
+			SVEntry *sv = SV_GetServerEntryByNetAdr(from, true);
+			sv->inuse = true;
+			sv->adr = *from;
+			sv->expireTime = 0xFFFFFFFF;
+			sv->protocol = 26;
+		}
+		challenge->inuse = false;
 	}
-	
+
+	// If challenge wasn't found, or challenge was incorrect, just ignore the packet
 }
 
 void JAMS_GetServers(Command *cmd, NetAdr *from, Q3OobMsg *msg)
@@ -94,5 +69,87 @@ void JAMS_GetServers(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 		return;
 	}
 
+	const int maxServers = sizeof(jams.servers)/sizeof(jams.servers[0]);
 
+	NetAdr *packetAdrs[111];
+	int i = 0;
+
+	while (1)
+	{
+		int currentAdrs = 0;
+		memset(packetAdrs, 0, sizeof(packetAdrs));
+
+		// Note: i is kept through each while loop iteration
+		for (; i < maxServers; i++)
+		{
+			SVEntry *sv = &jams.servers[i];
+
+			if (!sv->inuse) continue;
+
+			packetAdrs[currentAdrs] = &sv->adr;
+			currentAdrs++;
+
+			if (currentAdrs >= 111)
+			{
+				break;
+			}
+		}
+
+		// Check if we have addresses to send this round
+		if (currentAdrs > 0)
+		{
+			char replyChunk[1024];
+			int writeCount = 0;
+
+			Strncpyz(replyChunk, "ÿÿÿÿgetserversResponse\n", sizeof(replyChunk));
+			writeCount = strlen(replyChunk);
+
+			for (int j = 0; j < currentAdrs; j++)
+			{
+				char servertag[8];
+
+				// Assemble the "tag" for this server
+				servertag[0] = '\\';
+
+				unsigned long longip = packetAdrs[j]->GetIPv4Address();
+				servertag[1] = (longip >> 24) & 0xFF;
+				servertag[2] = (longip >> 16) & 0xFF;
+				servertag[3] = (longip >> 8) & 0xFF;
+				servertag[4] = longip & 0xFF;
+
+				unsigned short shortport = packetAdrs[j]->GetPort();
+				servertag[5] = (shortport >> 8) & 0xFF;
+				servertag[6] = shortport & 0xFF;
+
+				servertag[7] = '\0';
+
+				memcpy(replyChunk+writeCount, servertag, 7);
+				writeCount += 7;
+			}
+
+			// If we have no more servers to check, end with \\EOF instead of \\EOT
+			if (i >= maxServers)
+			{
+				memcpy(replyChunk+writeCount, "\\EOF", 4);
+			}
+			else
+			{
+				memcpy(replyChunk+writeCount, "\\EOT", 4);
+			}
+			writeCount += 4;
+
+			NET_SendPacket(from, replyChunk, writeCount);
+
+			// And if we have no more servers to check, break the while loop
+			if (i >= maxServers)
+			{
+				break;
+			}
+		}
+		else
+		{
+			// No addresses to send this round
+			break;
+		}
+	}
 }
