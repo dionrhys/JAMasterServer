@@ -1,3 +1,5 @@
+
+
 #ifndef _NET_H
 #define _NET_H
 
@@ -20,8 +22,8 @@
 #include <fcntl.h>
 #endif
 
-#include "NetAdr.h"
-#include "Q3OobMsg.h"
+//#include "NetAdr.h"
+//#include "Q3OobMsg.h"
 
 #if 0
 /// NetAdrType - Possible host address types

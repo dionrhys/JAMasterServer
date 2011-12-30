@@ -1,3 +1,5 @@
+
+
 #ifndef _JAMS_LOCAL_H
 #define _JAMS_LOCAL_H
 
@@ -31,10 +33,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winsock2.h>
-
-// Configuration
-//#define OPTPREFIX_C '/'
-//#define OPTPREFIX_S "/"
 
 // Confound this warning, it drives me to insomnia
 // http://msdn.microsoft.com/en-us/library/ttcz0bys.aspx
@@ -76,10 +74,8 @@
 
 #ifdef __linux__
 // OS-dependent libraries/includes
-
-// Configuration
-//#define OPTPREFIX_C '-'
-//#define OPTPREFIX_S "-"
+#include <sys/types.h>
+#include <unistd.h>
 
 /* Need to define OS and Arch identifiers for Linux systems,
    I have no clue how to do that... */
@@ -92,29 +88,25 @@
 #include <string.h>
 #include <time.h>
 #include <stdarg.h>
-#include <sys/types.h>
-
-#if 0 // Not needed for now, can dynamically allocate anything regarding paths/files
-	#ifndef MAXPATHLEN
-	# ifdef PATH_MAX
-	#  define MAXPATHLEN PATH_MAX
-	# elif defined(MAX_PATH)
-	#  define MAXPATHLEN MAX_PATH
-	# else
-	#  define MAXPATHLEN 256 // Fallback if any systems don't define this
-	# endif
-	#endif
-#endif
+#include <assert.h>
 
 int JAMS_Main(void);
 int JAMS_LoadConfig(void);
 
-void Strncpyz( char *dest, const char *src, int destsize ); // strncpy with guaranteed trailing zero
-void Strcat( char *dest, const char *src, int destsize );
-int Strcmp(const char *s1, const char *s2);
-int Strncmp(const char *s1, const char *s2, size_t count);
-int Stricmp(const char *s1, const char *s2);
-int Strnicmp(const char *s1, const char *s2, size_t count);
+// TODO: Sort this mess..
+
+#include "cJSON.h"
+#include "Command.h"
+#include "config.h"
+#include "InfoString.h"
+#include "NetAdr.h"
+#include "Q3OobMsg.h"
+#include "net.h" // depends on NetAdr and Q3OobMsg
+#include "oob_cmds.h"
+#include "platform.h"
+#include "rcon.h"
+#include "Server.h"
+#include "utils.h"
 
 //==================================================
 // Common Code
@@ -129,7 +121,6 @@ int Strnicmp(const char *s1, const char *s2, size_t count);
 									// to close/start servers and see changes promptly
 #define JAMS_DEFAULT_CHALLENGETIMEOUT 10
 
-#include "Server.h"
 typedef struct {
 	/*** OPTIONS **************************************/
 	// Configuration filename to read/write (malloced - not yet!)

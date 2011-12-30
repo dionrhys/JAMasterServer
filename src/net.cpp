@@ -1,9 +1,6 @@
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "net.h"
-#include "platform.h"
+#include "jams_local.h"
 
 #ifdef __linux__
 typedef int SOCKET;
@@ -275,8 +272,6 @@ void NET_SendPacket(NetAdr *to, const char *data, size_t length)
 	}
 }
 
-#include "Command.h"
-#include "oob_cmds.h"
 void NET_HandlePacket(NetAdr *from, Q3OobMsg *msg)
 {
 	char *line;

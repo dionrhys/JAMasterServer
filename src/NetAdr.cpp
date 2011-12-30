@@ -1,11 +1,6 @@
 
 
-#include "NetAdr.h"
-
-#include <cstring>
-#include <cassert>
-#include "platform.h"
-#include "net.h"
+#include "jams_local.h"
 
 NetAdr::NetAdr()
 {

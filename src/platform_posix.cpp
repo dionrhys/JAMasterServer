@@ -1,6 +1,8 @@
+
+
 #ifdef __linux__
 
-#include "platform.h"
+#include "jams_local.h"
 
 // ANSI colour codes
 #define ESC_OPEN "\033["	// Control Sequence Introducer (CSI)

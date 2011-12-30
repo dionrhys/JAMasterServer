@@ -1,8 +1,6 @@
-#include "InfoString.h"
-#include <cassert>
-#include <cstring>
-#include "jams_local.h" // String functions
-#include "platform.h"
+
+
+#include "jams_local.h"
 
 InfoString::InfoString(char *initialString)
 {

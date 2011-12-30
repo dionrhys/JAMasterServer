@@ -1,11 +1,6 @@
-#include "Command.h"
-#include "Q3OobMsg.h"
-#include "Server.h"
+
+
 #include "jams_local.h"
-#include "net.h"
-#include "platform.h"
-#include "InfoString.h"
-#include <string.h>
 
 // Handle incoming heartbeat command
 void JAMS_Heartbeat(Command *cmd, NetAdr *from, Q3OobMsg *msg)

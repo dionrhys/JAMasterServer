@@ -1,13 +1,12 @@
+
+
 // todo comments
 // Q3OobMsg class for reading/writing Q3 oob messages
 
 #ifndef _Q3OOBMSG_H
 #define _Q3OOBMSG_H
 
-//#include <stddef.h>
-#ifdef __linux__
-#include <sys/types.h>
-#endif
+#include "jams_local.h"
 
 class Q3OobMsg
 {

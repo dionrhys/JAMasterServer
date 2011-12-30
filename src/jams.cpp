@@ -8,12 +8,6 @@
 **************************************************/
 
 #include "jams_local.h"
-#include "cJSON.h"
-#include "platform.h"
-
-#ifdef __linux__
-#include <unistd.h> // sleep()
-#endif
 
 jamsLocal_t jams;
 

@@ -1,5 +1,6 @@
+
+
 #include "jams_local.h"
-#include "platform.h"
 
 /**
  * Show brief usage/help information to the user.

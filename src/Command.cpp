@@ -12,8 +12,7 @@
 *
 **************************************************/
 
-#include "Command.h"
-#include <string.h>
+#include "jams_local.h"
 
 #ifdef _WIN32
 #pragma warning (disable:4996)

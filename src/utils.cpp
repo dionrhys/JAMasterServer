@@ -1,5 +1,6 @@
+
+
 #include "jams_local.h"
-#include "platform.h"
 
 void Strncpyz( char *dest, const char *src, int destsize )
 {

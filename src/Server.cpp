@@ -1,6 +1,6 @@
+
+
 #include "jams_local.h"
-#include "net.h"
-#include "Server.h"
 
 // Return a usable challenge slot for a certain netadr
 // Pass a netadr to reuse a netadr's slot

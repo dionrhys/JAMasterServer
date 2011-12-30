@@ -1,10 +1,9 @@
+
+
 // todo comments
 // Q3OobMsg class for reading/writing Q3 oob messages
 
-#include <memory.h>
-#include <stddef.h>
-//#include "SizedTypes.h"
-#include "Q3OobMsg.h"
+#include "jams_local.h"
 
 /* Notes about Q3 connectionless packets:
  * - All ANSI characters except 'ÿ' are allowed in main text (even NUL!)

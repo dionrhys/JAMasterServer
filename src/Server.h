@@ -1,7 +1,9 @@
+
+
 #ifndef _SERVER_H
 #define _SERVER_H
 
-#include "net.h"
+#include "jams_local.h"
 
 // * Servers should be stored in the heap with chunked/adjustive allocation
 //   (allocate more or less depending on traffic, needs some throttling of course)

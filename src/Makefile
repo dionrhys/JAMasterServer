@@ -27,7 +27,7 @@ OBJECTS = Command.o NetAdr.o Q3OobMsg.o InfoString.o
 OBJECTS += net.o oob_cmds.o
 
 # Jumbled mess
-OBJECTS += Common.o jams.o main.o rcon.o Server.o
+OBJECTS += jams.o main.o rcon.o Server.o utils.o
 
 # Platform-specific headers
 OBJECTS += platform_win32.o platform_posix.o

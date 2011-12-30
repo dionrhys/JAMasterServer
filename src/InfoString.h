@@ -3,7 +3,7 @@
 #ifndef _INFOSTRING_H
 #define _INFOSTRING_H
 
-#include <sys/types.h> // for size_t on Linux...
+#include "jams_local.h"
 
 class InfoString
 {
