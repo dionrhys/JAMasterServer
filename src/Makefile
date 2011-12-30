@@ -21,7 +21,7 @@ EXECUTABLE = jams
 
 ### OBJECT FILES #################################
 # Classes
-OBJECTS = Command.o NetAdr.o Q3OobMsg.o
+OBJECTS = Command.o NetAdr.o Q3OobMsg.o InfoString.o
 
 # Static files
 OBJECTS += net.o oob_cmds.o
