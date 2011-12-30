@@ -86,6 +86,7 @@
     <ClCompile Include="cJSON.c" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Common.cpp" />
+    <ClCompile Include="InfoString.cpp" />
     <ClCompile Include="jams.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="net.cpp" />
@@ -100,6 +101,8 @@
   <ItemGroup>
     <ClInclude Include="cJSON.h" />
     <ClInclude Include="Command.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="InfoString.h" />
     <ClInclude Include="jams_local.h" />
     <ClInclude Include="net.h" />
     <ClInclude Include="NetAdr.h" />

@@ -4,6 +4,7 @@
 #include "jams_local.h"
 #include "net.h"
 #include "platform.h"
+#include "InfoString.h"
 #include <string.h>
 
 // Handle incoming heartbeat command
@@ -31,19 +32,24 @@ void JAMS_Heartbeat(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 
 void JAMS_StatusResponse(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 {
-	/*char *s = msg->ReadStringLine();
+	char challengeStr[32];
+	char *s = msg->ReadStringLine();
 	
-	while (*s)
-	{
-		printf("%s\n", s);
-		s = msg->ReadStringLine();
-	}*/
+	InfoString infoString(s);
+
+	// Get the server's challenge key
+	infoString.GetValue("challenge", challengeStr, sizeof(challengeStr));
 
 	SVChallenge *challenge = SV_GetChallengeByNetAdr(from, false);
 	if (challenge)
 	{
 		Print("JAMS_StatusResponse: Using challenge slot [%i]\n", challenge-jams.challenges);
-		if (challenge->challenge == 0xDEADBEEF || true)
+		int realChallenge = challenge->challenge;
+		int givenChallenge = atoi(challengeStr);
+
+		Print("JAMS_StatusResponse: Real challenge = %i, Given challenge = %i\n", realChallenge, givenChallenge);
+
+		if (realChallenge == givenChallenge)
 		{
 			Print("JAMS_StatusResponse: Challenge match\n");
 			SVEntry *sv = SV_GetServerEntryByNetAdr(from, true);
@@ -52,6 +58,8 @@ void JAMS_StatusResponse(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 			sv->expireTime = 0xFFFFFFFF;
 			sv->protocol = 26;
 		}
+
+		// Whether it matched or not, mark the challenge as not in use now
 		challenge->inuse = false;
 	}
 
