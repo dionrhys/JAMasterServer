@@ -7,7 +7,7 @@
 # Compiler to use
 CC = g++
 
-CFLAGS = -fpermissive
+CFLAGS = -fpermissive -fwritable-strings
 LDFLAGS =
 
 # Directory for intermediate files (obj files)
@@ -27,7 +27,7 @@ OBJECTS = Command.o NetAdr.o Q3OobMsg.o InfoString.o
 OBJECTS += net.o oob_cmds.o
 
 # Jumbled mess
-OBJECTS += jams.o main.o rcon.o Server.o utils.o
+OBJECTS += config.o jams.o main.o rcon.o Server.o utils.o
 
 # Platform-specific headers
 OBJECTS += platform_win32.o platform_posix.o

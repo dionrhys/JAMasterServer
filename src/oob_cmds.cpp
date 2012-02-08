@@ -102,7 +102,7 @@ void JAMS_GetServers(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 		if (currentAdrs > 0)
 		{
 			char replyChunk[1024];
-			int writeCount = 0;
+			size_t writeCount = 0;
 
 			Strncpyz(replyChunk, "ÿÿÿÿgetserversResponse\n", sizeof(replyChunk));
 			writeCount = strlen(replyChunk);

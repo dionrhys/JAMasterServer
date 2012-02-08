@@ -4,10 +4,10 @@
 #define _UTILS_H
 
 // strncpy with guaranteed trailing zero
-void Strncpyz(char *dest, const char *src, int destsize);
+void Strncpyz(char *dest, const char *src, size_t destsize);
 
 // strcat with guaranteed trailing zero
-void Strcat(char *dest, const char *src, int destsize);
+void Strcat(char *dest, const char *src, size_t destsize);
 
 // Compare two strings case-sensitive
 int Strcmp(const char *s1, const char *s2);

@@ -12,6 +12,7 @@ int WSACleanup() {return 0;} // yeah, laziness
 
 #ifdef _WIN32
 WSADATA wsaData;
+WSAEVENT readEvent;
 #endif
 
 SOCKET ipv4_socket;
@@ -98,7 +99,6 @@ void NET_SockaddrToNetadr(struct sockaddr *saddr, NetAdr *netadr)
 void NET_Init(const char *hostname, short port)
 {
 	int result;
-	unsigned long nonblocking = 1;
 
 #ifdef _WIN32
 	// Initialise Winsock
@@ -119,6 +119,7 @@ void NET_Init(const char *hostname, short port)
 
 	// Make the socket non-blocking
 #if defined(_WIN32)
+	unsigned long nonblocking = 1;
 	result = ioctlsocket(ipv4_socket, FIONBIO, &nonblocking);
 	if (result == SOCKET_ERROR)
 	{
@@ -168,11 +169,24 @@ void NET_Init(const char *hostname, short port)
 		Error("NET_Init: Failed to bind the socket: %s\n", NET_ErrorString());
 	}
 
+	// Setup the network read event for the socket
+#if defined(_WIN32)
+	readEvent = WSACreateEvent();
+	WSAEventSelect(ipv4_socket, readEvent, FD_READ);
+#endif
+
+	// Print result to user
 	NetAdr myAdr;
 	char addrstr[INET6_ADDRSTRLEN];
 	NET_SockaddrToNetadr((struct sockaddr*)&ipv4_local, &myAdr);
 	myAdr.ToString(addrstr, sizeof(addrstr));
-	printf("Net socket bound successfully to %s:%i\n", addrstr, port);
+	//printf("Net socket bound successfully to %s:%i\n", addrstr, port);
+	Print("Listening socket established on %s:%i\n", addrstr, port);
+
+	// Test code to wait for network input before doing stuff
+#if defined(_WIN32)
+	WaitForMultipleObjectsEx(1, &readEvent, FALSE, INFINITE, FALSE);
+#endif
 }
 
 // Shutdown the networking stuff
@@ -258,7 +272,7 @@ void NET_SendPacket(NetAdr *to, const char *data, size_t length)
 
 	to->ToSockaddr(&addr);
 
-	result = sendto(ipv4_socket, data, length, 0, (struct sockaddr *)&addr, sizeof(addr));
+	result = sendto(ipv4_socket, data, (int)length, 0, (struct sockaddr *)&addr, sizeof(addr));
 	if (result == SOCKET_ERROR)
 	{
 		// Ignore WOULDBLOCK errors

@@ -2,15 +2,15 @@
 
 #include "jams_local.h"
 
-void Strncpyz( char *dest, const char *src, int destsize )
+void Strncpyz( char *dest, const char *src, size_t destsize )
 {
 	strncpy( dest, src, destsize-1 );
 	dest[destsize-1] = '\0';
 }
 
-void Strcat( char *dest, const char *src, int destsize )
+void Strcat( char *dest, const char *src, size_t destsize )
 {
-	int prevLength = strlen(dest);
+	size_t prevLength = strlen(dest);
 
 	Strncpyz(dest + prevLength, src, destsize - prevLength);
 }
@@ -58,10 +58,10 @@ void Error( const char *fmt, ... )
 
 	Sys_Printf(PRINT_ERROR, message);
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(_DEBUG) && !defined(_WIN64)
 	__asm { int 3 }
 #endif
-	exit(1);
+	exit(EXIT_FAILURE);
 }
 
 void PrintWarning( const char *fmt, ... )

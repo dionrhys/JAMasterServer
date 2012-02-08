@@ -23,13 +23,14 @@ void Sys_Printf( printLevel_t level, const char *message )
 	switch (level) {
 		case PRINT_ERROR:
 			SetConsoleTextAttribute(console, CONCOLOR_ERROR);
-			printf("ERROR: %s", message);
-			//fprintf(stderr, "[ERROR] %s", message);
+			//printf("ERROR: %s", message);
+			fprintf(stderr, "ERROR: %s", message);
 			SetConsoleTextAttribute(console, CONCOLOR_DEFAULT);
 			break;
 		case PRINT_WARNING:
 			SetConsoleTextAttribute(console, CONCOLOR_WARNING);
-			printf("WARNING: %s", message);
+			//printf("WARNING: %s", message);
+			fprintf(stderr, "WARNING: %s", message);
 			SetConsoleTextAttribute(console, CONCOLOR_DEFAULT);
 			break;
 		case PRINT_NORMAL:

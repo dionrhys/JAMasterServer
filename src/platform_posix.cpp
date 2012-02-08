@@ -37,15 +37,20 @@ void Sys_Printf( printLevel_t level, const char *message )
 {
 	switch (level) {
 		case PRINT_ERROR:
-			printf(CONCOLOR_ERROR);
-			printf("ERROR: %s", message);
-			//fprintf(stderr, "ERROR: %s", message);
-			printf(CONCOLOR_DEFAULT);
+			//printf(CONCOLOR_ERROR);
+			//printf("ERROR: %s", message);
+			//printf(CONCOLOR_DEFAULT);
+			fprintf(stderr, CONCOLOR_ERROR);
+			fprintf(stderr, "ERROR: %s", message);
+			fprintf(stderr, CONCOLOR_DEFAULT);
 			break;
 		case PRINT_WARNING:
-			printf(CONCOLOR_WARNING);
-			printf("WARNING: %s", message);
-			printf(CONCOLOR_DEFAULT);
+			//printf(CONCOLOR_WARNING);
+			//printf("WARNING: %s", message);
+			//printf(CONCOLOR_DEFAULT);
+			fprintf(stderr, CONCOLOR_WARNING);
+			fprintf(stderr, "WARNING: %s", message);
+			fprintf(stderr, CONCOLOR_DEFAULT);
 			break;
 		case PRINT_NORMAL:
 			printf("%s", message);
@@ -63,8 +68,69 @@ void Sys_Printf( printLevel_t level, const char *message )
 	}
 }
 
+void signal_handler(int sig)
+{
+	switch (sig)
+	{
+		case SIGHUP:
+		case SIGTERM:
+		case SIGINT:
+			exit(0);
+			break;
+		default:
+			
+			break;
+	}
+}
+
+// Daemonize the process so that it runs in the background
+int daemonize(void)
+{
+	// Fork the process then detach from the newly-cloned child process
+	pid_t newpid = fork();
+	if (newpid == -1) {
+		// -1 means an error occurred
+		fprintf(stderr, "Daemonize: Failed to fork: %s (%i)\n", strerror(errno), errno);
+		exit(EXIT_FAILURE);
+	}
+
+	if (newpid > 0) {
+		// If newpid is > 0, we are the parent and we simply exit successfully.
+		// The child will continue along its way without us.
+		exit(EXIT_SUCCESS);
+	}
+
+	/*** We are now executing as the child process ***/
+
+	// Create a new session (this will detach from the controlling TTY)
+	pid_t newsid = setsid();
+	if (newsid == -1) {
+		// -1 means an error occurred
+		fprintf(stderr, "Daemonize: Failed to setsid: %s (%i)\n", strerror(errno), errno);
+		exit(EXIT_FAILURE);
+	}
+
+	// Redirect standard file descriptors to a blackhole
+	freopen("/dev/null", "r", stdin);
+	freopen("/dev/null", "w", stdout);
+	freopen("/dev/null", "w", stderr);
+
+	// Change the file mode mask
+	umask(0);
+
+	// Set the working directory to a known directory (/)
+	if (chdir("/") == -1) {
+		// -1 means an error occurred
+		//fprintf(stderr, "Daemonize: Failed to chdir to root: %s (%i)\n", strerror(errno), errno);
+		exit(EXIT_FAILURE);
+	}
+}
+
 int Sys_Init()
 {
+	// Daemonize if needed
+	daemonize();
+	
 	// Install the signal handler
 
 

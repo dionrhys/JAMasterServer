@@ -11,6 +11,8 @@
 
 jamsLocal_t jams;
 
+//EVENT nextExpireEvent;
+
 void JAMS_InitServers(void); //hackhackhack
 int JAMS_Main(void)
 {
@@ -29,11 +31,13 @@ int JAMS_Main(void)
 	while (true)
 	{
 		NET_Frame();
+/*
 #if defined(_WIN32)
 		Sleep(1);
 #elif defined(__linux__)
 		sleep(1);
 #endif
+*/
 	}
 
 	//system("pause>nul");
@@ -95,14 +99,14 @@ int JAMS_LoadConfig(void)
 		cJSON_Delete(root);
 	}
 	
-	printf("  -- Configuration --\n");
-	printf("  configFilename = %s\n", jams.configFilename);
-	printf("  floodDelay = %i\n", jams.floodDelay);
-	printf("  hostname = %s\n", jams.hostname);
-	printf("  port = %i\n", jams.port);
-	printf("  rconPassword = %s\n", jams.rconPassword);
-	printf("  svTimeout = %i\n", jams.svTimeout);
-	printf("  challengeTimeout = %i\n", jams.challengeTimeout);
+	PrintVerbose("  -- Configuration --\n");
+	PrintVerbose("  configFilename = %s\n", jams.configFilename);
+	PrintVerbose("  floodDelay = %i\n", jams.floodDelay);
+	PrintVerbose("  hostname = %s\n", jams.hostname);
+	PrintVerbose("  port = %i\n", jams.port);
+	PrintVerbose("  rconPassword = %s\n", jams.rconPassword);
+	PrintVerbose("  svTimeout = %i\n", jams.svTimeout);
+	PrintVerbose("  challengeTimeout = %i\n", jams.challengeTimeout);
 
 	return 0;
 }
@@ -125,11 +129,13 @@ void JAMS_InitServers(void)
 	memset(jams.servers, 0, sizeof(jams.servers));
 	memset(jams.challenges, 0, sizeof(jams.challenges));
 
-	// Fake test server entry
+#if 0
+	// Fake test server entry (Joe's Makermod: 209.239.123.186:29070)
 	jams.servers[0].inuse = true;
 	jams.servers[0].adr = NetAdr(0xD1EF7BBA, 29070);
 	jams.servers[0].protocol = 26;
 	jams.servers[0].expireTime = 0xFFFFFFFF;
+#endif
 }
 
 // Every time a heartbeat is given, the server is put on the challenge list

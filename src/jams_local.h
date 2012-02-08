@@ -26,61 +26,60 @@
 
 #define JAMS_NAME "JAMasterServer"
 #define JAMS_VERSION "r1"
-//#define JAMS_FULLVERSION JAMS_NAME" "JAMS_VERSION
 
-#ifdef _WIN32
-// OS-dependent libraries/includes
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winsock2.h>
+#if defined(_WIN32)
+	// OS-dependent libraries/includes
+	#define WIN32_LEAN_AND_MEAN
+	#include <windows.h>
+	#include <winsock2.h>
 
-// Confound this warning, it drives me to insomnia
-// http://msdn.microsoft.com/en-us/library/ttcz0bys.aspx
-#ifdef _DEBUG
-#pragma warning(disable:4996)
+	// Confound this warning, it drives me to insomnia
+	// http://msdn.microsoft.com/en-us/library/ttcz0bys.aspx
+	#ifdef _DEBUG
+	#pragma warning(disable:4996)
+	#endif
+
+	// Define the OS and Arch identifier (only needed for diagnostics/info)
+	#ifdef _WIN64
+	#define JAMS_OS "win64"
+
+	#if defined(_M_X64)
+	#define JAMS_ARCH "x64"
+	#elif defined(_M_IA64)
+	#define JAMS_ARCH "Itanium"
+	#else
+	#define JAMS_ARCH "UnknownArch"
+	#endif
+
+	#else // We already know _WIN32 is defined
+
+	#define JAMS_OS "win32"
+	#if defined(_M_IX86) /*_X86_*/
+	#define JAMS_ARCH "x86"
+	#else
+	#define JAMS_ARCH "UnknownArch"
+	#endif
+
+	#endif // _WIN64
+
+	// Define debug marker for info
+	#ifdef _DEBUG
+	#define JAMS_DEBUGBUILD "debug" // JAMS_DEUGBUILD can be treated as a pointer (0/NULL if not debug)
+	#else
+	#define JAMS_DEBUGBUILD 0
+	#endif // _DEBUG
+
+#elif defined(__linux__)
+	// OS-dependent libraries/includes
+	#include <sys/types.h>
+	#include <unistd.h>
+
+	/* Need to define OS and Arch identifiers for Linux systems,
+	   I have no clue how to do that... */
+	#define JAMS_OS "linux"
+	#define JAMS_ARCH "UnknownArch"
+
 #endif
-
-// Define the OS and Arch identifier (only needed for diagnostics/info)
-#ifdef _WIN64
-#define JAMS_OS "win64"
-
-#if defined(_M_X64) /*_AMD64_*/
-#define JAMS_ARCH "x64" // Microsoft prefers to call it "x64" not "amd64"
-#elif defined(_M_IA64) /*_IA64_*/
-#define JAMS_ARCH "Itanium"
-#else
-#define JAMS_ARCH "UnknownArch"
-#endif
-
-#else // We already know _WIN32 is defined
-
-#define JAMS_OS "win32"
-#if defined(_M_IX86) /*_X86_*/
-#define JAMS_ARCH "x86"
-#else
-#define JAMS_ARCH "UnknownArch"
-#endif
-
-#endif // _WIN64
-
-// Define debug marker for info
-#ifdef _DEBUG
-#define JAMS_DEBUGBUILD "debug" // JAMS_DEUGBUILD can be treated as a pointer (0/NULL if not debug)
-#else
-#define JAMS_DEBUGBUILD 0
-#endif // _DEBUG
-
-#endif // _WIN32
-
-#ifdef __linux__
-// OS-dependent libraries/includes
-#include <sys/types.h>
-#include <unistd.h>
-
-/* Need to define OS and Arch identifiers for Linux systems,
-   I have no clue how to do that... */
-
-#endif // __linux__
 
 // Standard Libraries
 #include <stdlib.h>
@@ -97,7 +96,7 @@ int JAMS_LoadConfig(void);
 
 #include "cJSON.h"
 #include "Command.h"
-#include "config.h"
+//#include "config.h"
 #include "InfoString.h"
 #include "NetAdr.h"
 #include "Q3OobMsg.h"
@@ -157,6 +156,25 @@ typedef struct {
 
 	int nextChallenge;
 	SVChallenge challenges[1024];
+
+	/**
+	 * Structure to hold all the configuration options after loading.
+	 * See config.h for the actual table of configuration options.
+	 */
+	struct {
+		char *hostname;
+		int port;
+		char *rconPassword;
+		int svTimeout;
+		int floodDelay;
+		int challengeTimeout;
+		bool daemonize;
+		bool useLogFile;
+		char *logFile;
+		bool useSyslog;
+		char *lockFile;
+	} config;
+
 } jamsLocal_t;
 
 extern jamsLocal_t jams;
