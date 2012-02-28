@@ -12,7 +12,7 @@ int WSACleanup() {return 0;} // yeah, laziness
 
 #ifdef _WIN32
 WSADATA wsaData;
-WSAEVENT readEvent;
+//WSAEVENT readEvent;
 #endif
 
 SOCKET ipv4_socket;
@@ -170,10 +170,10 @@ void NET_Init(const char *hostname, short port)
 	}
 
 	// Setup the network read event for the socket
-#if defined(_WIN32)
-	readEvent = WSACreateEvent();
-	WSAEventSelect(ipv4_socket, readEvent, FD_READ);
-#endif
+//#if defined(_WIN32)
+//	readEvent = WSACreateEvent();
+//	WSAEventSelect(ipv4_socket, readEvent, FD_READ);
+//#endif
 
 	// Print result to user
 	NetAdr myAdr;
@@ -182,11 +182,6 @@ void NET_Init(const char *hostname, short port)
 	myAdr.ToString(addrstr, sizeof(addrstr));
 	//printf("Net socket bound successfully to %s:%i\n", addrstr, port);
 	Print("Listening socket established on %s:%i\n", addrstr, port);
-
-	// Test code to wait for network input before doing stuff
-#if defined(_WIN32)
-	WaitForMultipleObjectsEx(1, &readEvent, FALSE, INFINITE, FALSE);
-#endif
 }
 
 // Shutdown the networking stuff
@@ -205,34 +200,50 @@ void NET_Frame()
 	char data[4096];
 	Q3OobMsg netMsg(data, sizeof(data));
 	NetAdr netFrom;
+	fd_set readset;
+	const struct timeval tv = { 1, 0 };
 
 	if (!ipv4_socket) return;
 
-	result = recvfrom(ipv4_socket, (char*)data, sizeof(data), 0, (struct sockaddr *)&sfrom, &fromlen);
-	if (result == SOCKET_ERROR)
+	FD_ZERO(&readset);
+	FD_SET(ipv4_socket, &readset);
+
+	// If socket was set, handle the socket
+	// Else, it means the timeout occured so handle expiring servers from the list
+	select(1, &readset, NULL, NULL, &tv);
+
+	if (FD_ISSET(ipv4_socket, &readset))
 	{
-		// Ignore WOULDBLOCK errors
-#if defined(_WIN32)
-		if (WSAGetLastError() == WSAEWOULDBLOCK) return;
-#elif defined(__linux__)
-		if (errno == EWOULDBLOCK || errno == EAGAIN) return;
-#endif
+		result = recvfrom(ipv4_socket, (char*)data, sizeof(data), 0, (struct sockaddr *)&sfrom, &fromlen);
+		if (result == SOCKET_ERROR)
+		{
+			// Ignore WOULDBLOCK errors
+	#if defined(_WIN32)
+			if (WSAGetLastError() == WSAEWOULDBLOCK) return;
+	#elif defined(__linux__)
+			if (errno == EWOULDBLOCK || errno == EAGAIN) return;
+	#endif
 
-		PrintWarning("NET_Frame: recvfrom failed: %s\n", NET_ErrorString());
-		return;
-	}
+			PrintWarning("NET_Frame: recvfrom failed: %s\n", NET_ErrorString());
+			return;
+		}
 	
-	NET_SockaddrToNetadr((struct sockaddr *)&sfrom, &netFrom);
+		NET_SockaddrToNetadr((struct sockaddr *)&sfrom, &netFrom);
 
-	if (result == netMsg.GetMaxSize()) {
-		PrintWarning("NET_Frame: Oversize packet from %s\n", NULL);
-		return;
-	}
+		if (result == netMsg.GetMaxSize()) {
+			PrintWarning("NET_Frame: Oversize packet from %s\n", NULL);
+			return;
+		}
 	
-	netMsg.SetSize(result);
+		netMsg.SetSize(result);
 
-	// We have a packet to handle!
-	NET_HandlePacket(&netFrom, &netMsg);
+		// We have a packet to handle!
+		NET_HandlePacket(&netFrom, &netMsg);
+	}
+	else
+	{
+		Print(".");
+	}
 }
 
 //#define MAX_MSGLENGTH 16384 // No legitimate request should be this long!
