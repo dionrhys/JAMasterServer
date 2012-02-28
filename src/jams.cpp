@@ -31,13 +31,6 @@ int JAMS_Main(void)
 	while (true)
 	{
 		NET_Frame();
-/*
-#if defined(_WIN32)
-		Sleep(1);
-#elif defined(__linux__)
-		sleep(1);
-#endif
-*/
 	}
 
 	//system("pause>nul");

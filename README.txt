@@ -39,10 +39,13 @@ Copyright (c) 2010 Lourens "BobaFett" Elzinga
 Copyright (c) 2009 Dave Gamble
 
 
+yaml-cpp: Copyright (c) 2008 Jesse Beder
+
+
 Licence
 -------
 
-Copyright (c) 2011 Dion Williams 
+Copyright (c) 2012 Dion Williams 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 

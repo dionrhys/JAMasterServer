@@ -115,4 +115,6 @@ static const option_t jamsOptions[] = {
 	{NULL}
 };
 
+bool JAMS_LoadConfig(char *filename);
+
 #endif // !_CONFIG_H

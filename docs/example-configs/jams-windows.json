@@ -1,0 +1,12 @@
+{
+	"hostname":"",
+	"port":29060,
+	"rconPassword":"",
+	"svTimeout":300,
+	"floodDelay":60,
+	"challengeTimeout":10,
+	"useLogFile":true,
+	"logFile":"./jams.log",
+	"useSyslog":false,
+	"lockFile":"./jams.pid"
+}

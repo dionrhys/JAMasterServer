@@ -96,7 +96,7 @@ int JAMS_LoadConfig(void);
 
 #include "cJSON.h"
 #include "Command.h"
-//#include "config.h"
+#include "config.h"
 #include "InfoString.h"
 #include "NetAdr.h"
 #include "Q3OobMsg.h"

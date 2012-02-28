@@ -50,7 +50,7 @@ void JAMS_StatusResponse(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 			SVEntry *sv = SV_GetServerEntryByNetAdr(from, true);
 			sv->inuse = true;
 			sv->adr = *from;
-			sv->expireTime = 0xFFFFFFFF;
+			sv->expireTime = time(NULL) + jams.svTimeout;
 			sv->protocol = 26;
 		}
 
@@ -88,6 +88,15 @@ void JAMS_GetServers(Command *cmd, NetAdr *from, Q3OobMsg *msg)
 			SVEntry *sv = &jams.servers[i];
 
 			if (!sv->inuse) continue;
+
+			// Remove expired servers
+			if (sv->expireTime < time(NULL)) {
+				char addrstr[INET6_ADDRSTRLEN];
+				sv->adr.ToString(addrstr, sizeof(addrstr));
+				PrintVerbose("Server %s expired. expireTime = %i, time() = %i\n", addrstr, sv->expireTime, time(NULL));
+				sv->inuse = false;
+				continue;
+			}
 
 			packetAdrs[currentAdrs] = &sv->adr;
 			currentAdrs++;
