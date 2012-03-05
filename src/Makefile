@@ -7,7 +7,8 @@
 # Compiler to use
 CC = g++
 
-CFLAGS = -fpermissive -fwritable-strings
+#CFLAGS = -fpermissive -fwritable-strings
+CFLAGS =
 LDFLAGS =
 
 # Directory for intermediate files (obj files)
@@ -33,7 +34,7 @@ OBJECTS += config.o jams.o main.o rcon.o Server.o utils.o
 OBJECTS += platform_win32.o platform_posix.o
 
 # Libraries
-OBJECTS += cJSON.o
+#OBJECTS += cJSON.o
 ##################################################
 
 # The target depends on the output directory

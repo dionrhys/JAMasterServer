@@ -8,15 +8,20 @@
 bool JAMS_LoadConfig(char *filename)
 {
 	std::ifstream fin(filename);
+	if (!fin.is_open()) {
+		Error("Unable to open configuration file '%s' for reading", filename);
+	}
+	
 	YAML::Parser parser(fin);
 
 	YAML::Node config;
 	if (parser.GetNextDocument(config) == false) {
 		// Config empty
-		Error("Configuration file is emturtles");
+		Error("Configuration file '%s' is empty", filename);
 		return false;
 	}
 
+	// Extract all config options from the file
 	for (const option_t *opt = &jamsOptions[0]; opt->name != NULL; opt++)
 	{
 		assert(opt->ptr);
@@ -27,13 +32,13 @@ bool JAMS_LoadConfig(char *filename)
 				if (const YAML::Node *outBool = config.FindValue(opt->name)) {
 					*outBool >> *(bool *)opt->ptr;
 				} else {
-					bool b;
-					std::stringstream ss(opt->defaultValue);
-					ss >> b;
-					if ( ss.fail() ) {
+					if ( !Strcmp(opt->defaultValue, "true") ) {
+						*(bool *)opt->ptr = true;
+					} else if ( !Strcmp(opt->defaultValue, "false") ) {
+						*(bool *)opt->ptr = false;
+					} else {
 						Error("DERPDERPDERP");
 					}
-					*(bool *)opt->ptr = b;
 				}
 				break;
 			case OPT_INT:
@@ -50,9 +55,36 @@ bool JAMS_LoadConfig(char *filename)
 				}
 				break;
 			case OPT_FLOAT:
+				if (const YAML::Node *outFloat = config.FindValue(opt->name)) {
+					*outFloat >> *(float *)opt->ptr;
+				} else {
+					float f;
+					std::stringstream ss(opt->defaultValue);
+					ss >> f;
+					if ( ss.fail() ) {
+						Error("DERPDERPDERP");
+					}
+					*(float *)opt->ptr = f;
+				}
 				break;
 			case OPT_STRING:
+				if (const YAML::Node *outString = config.FindValue(opt->name)) {
+					*outString >> *(std::string *)opt->ptr;
+				} else {
+					*(std::string *)opt->ptr = std::string(opt->defaultValue);
+				}
+				break;
+			default:
+				Error("DERPDERPDERP");
 				break;
 		}
+	}
+}
+
+bool JAMS_SaveConfig(char *filename)
+{
+	std::ofstream fout(filename);
+	if (!fout.is_open()) {
+		Error("Unable to open configuration file '%s' for writing", filename);
 	}
 }

@@ -164,7 +164,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cJSON.c" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="serverlist.cpp" />
@@ -182,7 +181,6 @@
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cJSON.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="InfoString.h" />
