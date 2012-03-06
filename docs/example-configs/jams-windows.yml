@@ -1,8 +1,8 @@
 # JAMasterServer configuration file
 
-hostname:
+hostname: ''
 port: 29060
-rconPassword:
+rconPassword: ''
 svTimeout: 300
 floodDelay: 60
 challengeTimeout: 10

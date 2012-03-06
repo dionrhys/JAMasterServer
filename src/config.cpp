@@ -9,7 +9,7 @@ bool JAMS_LoadConfig(char *filename)
 {
 	std::ifstream fin(filename);
 	if (!fin.is_open()) {
-		Error("Unable to open configuration file '%s' for reading", filename);
+		Error("JAMS_LoadConfig: Unable to open configuration file '%s' for reading", filename);
 	}
 	
 	YAML::Parser parser(fin);
@@ -17,7 +17,7 @@ bool JAMS_LoadConfig(char *filename)
 	YAML::Node config;
 	if (parser.GetNextDocument(config) == false) {
 		// Config empty
-		Error("Configuration file '%s' is empty", filename);
+		Error("JAMS_LoadConfig: Configuration file '%s' is empty", filename);
 		return false;
 	}
 
@@ -26,63 +26,63 @@ bool JAMS_LoadConfig(char *filename)
 	{
 		assert(opt->ptr);
 		assert(opt->defaultValue);
+
+		const YAML::Node *out;
+
 		switch (opt->type)
 		{
 			case OPT_BOOL:
-				if (const YAML::Node *outBool = config.FindValue(opt->name)) {
-					*outBool >> *(bool *)opt->ptr;
+				out = config.FindValue(opt->name);
+				if (out && out->Type() == YAML::NodeType::Scalar) {
+					*out >> *(bool *)opt->ptr;
 				} else {
-					/*if ( !Strcmp(opt->defaultValue, "true") ) {
+					if ( !Strcmp(opt->defaultValue, "true") ) {
 						*(bool *)opt->ptr = true;
 					} else if ( !Strcmp(opt->defaultValue, "false") ) {
 						*(bool *)opt->ptr = false;
 					} else {
-						Error("DERPDERPDERP");
-					}*/
-					bool b;
-					std::stringstream ss(opt->defaultValue);
-					ss >> b;
-					if ( ss.fail() ) {
-						Error("DERPDERPDERP");
+						Error("JAMS_LoadConfig: Failed to parse default value for %s", opt->name);
 					}
-					*(bool *)opt->ptr = b;
 				}
 				break;
 			case OPT_INT:
-				if (const YAML::Node *outInt = config.FindValue(opt->name)) {
-					*outInt >> *(int *)opt->ptr;
+				out = config.FindValue(opt->name);
+				if (out && out->Type() == YAML::NodeType::Scalar) {
+					*out >> *(int *)opt->ptr;
 				} else {
 					int i;
 					std::stringstream ss(opt->defaultValue);
 					ss >> i;
 					if ( ss.fail() ) {
-						Error("DERPDERPDERP");
+						Error("JAMS_LoadConfig: Failed to parse default value for %s", opt->name);
 					}
 					*(int *)opt->ptr = i;
 				}
 				break;
 			case OPT_FLOAT:
-				if (const YAML::Node *outFloat = config.FindValue(opt->name)) {
-					*outFloat >> *(float *)opt->ptr;
+				out = config.FindValue(opt->name);
+				if (out && out->Type() == YAML::NodeType::Scalar) {
+					*out >> *(float *)opt->ptr;
 				} else {
 					float f;
 					std::stringstream ss(opt->defaultValue);
 					ss >> f;
 					if ( ss.fail() ) {
-						Error("DERPDERPDERP");
+						Error("JAMS_LoadConfig: Failed to parse default value for %s", opt->name);
 					}
 					*(float *)opt->ptr = f;
 				}
 				break;
 			case OPT_STRING:
-				if (const YAML::Node *outString = config.FindValue(opt->name)) {
-					*outString >> *(std::string *)opt->ptr;
+				out = config.FindValue(opt->name);
+				if (out && out->Type() == YAML::NodeType::Scalar) {
+					*out >> *(std::string *)opt->ptr;
 				} else {
 					*(std::string *)opt->ptr = std::string(opt->defaultValue);
 				}
 				break;
 			default:
-				Error("DERPDERPDERP");
+				Error("JAMS_LoadConfig: Invalid field type for ", opt->name);
 				break;
 		}
 	}
