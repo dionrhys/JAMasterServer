@@ -88,15 +88,15 @@
 #include <time.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <string>
 
 int JAMS_Main(void);
-int JAMS_LoadConfig(void);
+//int JAMS_LoadConfig(void);
 
 // TODO: Sort this mess..
 
 #include "cJSON.h"
 #include "Command.h"
-#include "config.h"
 #include "InfoString.h"
 #include "NetAdr.h"
 #include "Q3OobMsg.h"
@@ -162,21 +162,23 @@ typedef struct {
 	 * See config.h for the actual table of configuration options.
 	 */
 	struct {
-		char *hostname;
-		int port;
-		char *rconPassword;
-		int svTimeout;
-		int floodDelay;
-		int challengeTimeout;
-		bool daemonize;
-		bool useLogFile;
-		char *logFile;
-		bool useSyslog;
-		char *lockFile;
+		std::string		hostname;
+		int				port;
+		std::string		rconPassword;
+		int				svTimeout;
+		int				floodDelay;
+		int				challengeTimeout;
+		bool			daemonize;
+		bool			useLogFile;
+		std::string		logFile;
+		bool			useSyslog;
+		std::string		lockFile;
 	} config;
 
 } jamsLocal_t;
 
 extern jamsLocal_t jams;
+
+#include "config.h"
 
 #endif

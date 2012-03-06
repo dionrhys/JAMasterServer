@@ -32,13 +32,20 @@ bool JAMS_LoadConfig(char *filename)
 				if (const YAML::Node *outBool = config.FindValue(opt->name)) {
 					*outBool >> *(bool *)opt->ptr;
 				} else {
-					if ( !Strcmp(opt->defaultValue, "true") ) {
+					/*if ( !Strcmp(opt->defaultValue, "true") ) {
 						*(bool *)opt->ptr = true;
 					} else if ( !Strcmp(opt->defaultValue, "false") ) {
 						*(bool *)opt->ptr = false;
 					} else {
 						Error("DERPDERPDERP");
+					}*/
+					bool b;
+					std::stringstream ss(opt->defaultValue);
+					ss >> b;
+					if ( ss.fail() ) {
+						Error("DERPDERPDERP");
 					}
+					*(bool *)opt->ptr = b;
 				}
 				break;
 			case OPT_INT:
@@ -79,6 +86,8 @@ bool JAMS_LoadConfig(char *filename)
 				break;
 		}
 	}
+
+	return true;
 }
 
 bool JAMS_SaveConfig(char *filename)
@@ -87,4 +96,6 @@ bool JAMS_SaveConfig(char *filename)
 	if (!fout.is_open()) {
 		Error("Unable to open configuration file '%s' for writing", filename);
 	}
+
+	return false;
 }

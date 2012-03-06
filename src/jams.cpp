@@ -19,8 +19,9 @@ int JAMS_Main(void)
 	Print("Starting up...\n");
 	
 	// Load configuration
-	int err = JAMS_LoadConfig();
-	if (err) return err;
+	//int err = JAMS_LoadConfig();
+	//if (err) return err;
+	JAMS_LoadConfig("jams.yml");
 
 	JAMS_InitServers();
 
@@ -38,7 +39,7 @@ int JAMS_Main(void)
 	return 0;
 }
 
-int JAMS_LoadConfig(void)
+/*int JAMS_LoadConfig(void)
 {
 	FILE *f;
 	cJSON *root;
@@ -111,7 +112,7 @@ void JAMS_SaveConfig()
 	root = cJSON_CreateObject();
 
 	cJSON_Delete(root);
-}
+}*/
 
 //==================================================
 // Server Handling Code
